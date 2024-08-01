@@ -1,0 +1,9 @@
+PySide6
+music21
+verovio
+mido
+pyaudio 
+tinysoundfont
+svg-stack
+lxml
+beautifulsoup4
