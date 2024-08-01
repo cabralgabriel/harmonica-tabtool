@@ -10,7 +10,6 @@ from gui.sheet_viewer import SheetViewer
 from gui.midi_player import MidiPlayer
 from handlers.converters import FileHandler
 from handlers.score import ScoreEditor
-from handlers.tunings import TuningHandler
 from handlers.svg import SVGHandler
 
 class MainWindow(QMainWindow):
@@ -25,7 +24,7 @@ class MainWindow(QMainWindow):
         self.make_temp_directory()
 
     def init_ui(self):
-        self.setWindowTitle("Harmonica TabViewer")
+        self.setWindowTitle("Harmonica TabTool")
         self.setGeometry(100, 100, 1280, 720)
         #self.setWindowFlags(Qt.FramelessWindowHint)
 
@@ -231,7 +230,7 @@ class MainWindow(QMainWindow):
         self.tab_rulers.triggered.connect(self.open_tab_rulers)
         about_menu.addAction(self.tab_rulers)
         
-        self.about_action = QAction("About Harmonica TabViewer", self)
+        self.about_action = QAction("About Harmonica TabTool", self)
         self.about_action.setEnabled(True)
         self.about_action.triggered.connect(self.show_about)
         about_menu.addAction(self.about_action)
@@ -265,15 +264,13 @@ class MainWindow(QMainWindow):
             if self.file_name:
                 self.save_as_musicxml.setText(f"Export {self.file_name} as .musicxml")
                 self.print_pdf.setText(f"Export {self.file_name} as .pdf")
-                self.setWindowTitle(f"Harmonica TabViewer - {self.file_path}")
+                self.setWindowTitle(f"Harmonica TabTool - {self.file_path}")
     
     def close_instances(self):
         if hasattr(self, 'sheet_viewer') and isinstance(self.sheet_viewer, SheetViewer):
             if hasattr(self.sheet_viewer, 'file_handler') and isinstance(self.sheet_viewer.file_handler, FileHandler):
                 del self.sheet_viewer.file_handler
             if hasattr(self.sheet_viewer, 'score_editor') and isinstance(self.sheet_viewer.score_editor, ScoreEditor):
-                if hasattr(self.sheet_viewer.score_editor, 'harps_handler') and isinstance(self.sheet_viewer.score_editor.harps_handler, TuningHandler):
-                    del self.sheet_viewer.score_editor.harps_handler
                 del self.sheet_viewer.score_editor
             if hasattr(self.sheet_viewer, 'svg_handler') and isinstance(self.sheet_viewer.svg_handler, SVGHandler):
                 del self.sheet_viewer.svg_handler
@@ -297,7 +294,7 @@ class MainWindow(QMainWindow):
                 print(f'Failed to load file. Reason: {e}')
 
     def make_temp_directory(self):
-        self.temp_dir = os.path.join(tempfile.gettempdir(), "harmonica_tabviewer")
+        self.temp_dir = os.path.join(tempfile.gettempdir(), "harmonica_tabtool")
         if not os.path.exists(self.temp_dir):
             os.makedirs(self.temp_dir)
 
@@ -467,7 +464,7 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, event):
         try:
-            self.temp_dir = os.path.join(tempfile.gettempdir(), "harmonica_tabviewer")
+            self.temp_dir = os.path.join(tempfile.gettempdir(), "harmonica_tabtool")
             shutil.rmtree(self.temp_dir)
         except Exception as e:
             print(f'Failed to delete temp directory {self.temp_dir}. Reason: {e}')

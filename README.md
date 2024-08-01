@@ -1,4 +1,4 @@
-# Harmonica TabViewer
+# Harmonica TabTool
 
 ## Features
 

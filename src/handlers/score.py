@@ -1,10 +1,11 @@
-from music21 import note, chord, metadata
+from music21 import note, chord, metadata, pitch
 
-from handlers.tunings import TuningHandler
+from constants.tunings import HARMONICA_TUNINGS
 
 class ScoreEditor:
     def __init__(self, source):
-        self.harps_handler = TuningHandler(self)
+        self.source = source
+        self.harmonica_tunings = HARMONICA_TUNINGS
 
     def edit_metadata(self, score, title, key):
         title = title.replace("-", " ").replace("_", " ")
@@ -46,12 +47,23 @@ class ScoreEditor:
 
         return score, count_removed_chords, count_removed_notes
     
+
+    def harp_map(self, key, tuning, type):
+        harp = {}
+        start_pitch = pitch.Pitch(str(key))
+        tuning_sys = self.harmonica_tunings[type].get(tuning, [])
+
+        for note in tuning_sys:
+            harp[start_pitch.ps] = note
+            start_pitch = pitch.Pitch(start_pitch.ps + 1)
+
+        return harp
     
     def label_notes(self, score, type, tuning, key, reduce_chords):
         if type == 'Diatonic':
-            self.harmonica_mapping = self.harps_handler.diatonic_harp(key, tuning)
+            self.harmonica_mapping = self.harp_map(key, tuning, 'diatonic')
         elif type == 'Chromatic':
-            self.harmonica_mapping = self.harps_handler.chromatic_harp(key, tuning)
+            self.harmonica_mapping = self.harp_map(key, tuning, 'chromatic')
         tab_in_text = ''
 
         for measure in score.getElementsByClass('Measure'):
@@ -109,8 +121,8 @@ class ScoreEditor:
         """
         filtered_keys = []
 
-        for name, value in key_options:
-            self.harmonica_mapping = self.harps_handler.diatonic_harp(value, tuning)
+        for key_name, key in key_options:
+            self.harmonica_mapping = self.harp_map(key, tuning, 'diatonic')
             
             remove_key = False
             for measure in score.getElementsByClass('Measure'):
@@ -125,6 +137,6 @@ class ScoreEditor:
                     break
 
             if not remove_key:
-                filtered_keys.append((name, value))
+                filtered_keys.append((key_name, key))
 
         return filtered_keys
