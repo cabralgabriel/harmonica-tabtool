@@ -156,7 +156,7 @@ class SheetViewer:
         }
 
     def load_default_scene(self):
-        nokeys = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'assets', 'nokeys.html'))
+        nokeys = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'assets', 'screens', 'nokeys.html'))
         nokeys_url = QUrl.fromLocalFile(nokeys)
         self.frameview.load(nokeys_url)
 

@@ -6,6 +6,7 @@ from PySide6.QtGui import QAction, QIcon, QPageSize, QPageLayout, QGuiApplicatio
 from PySide6.QtCore import Qt, QUrl, QByteArray, QMarginsF
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
+from constants.styles import STYLES
 from gui.sheet_viewer import SheetViewer
 from gui.midi_player import MidiPlayer
 from handlers.converters import FileHandler
@@ -28,39 +29,14 @@ class MainWindow(QMainWindow):
         self.setGeometry(100, 100, 1280, 720)
         #self.setWindowFlags(Qt.FramelessWindowHint)
 
-        my_icon = QIcon()
-        my_icon.addFile('./assets/icon.png')
-        self.setWindowIcon(QIcon(my_icon))
+        icon = QIcon()
+        icon.addFile('./assets/harmonica-tabtool-icon.png')
+        self.setWindowIcon(QIcon(icon))
 
         self.central_widget = QWidget(self)
         self.setCentralWidget(self.central_widget)
         self.main_layout = QHBoxLayout(self.central_widget)
-
-        self.setStyleSheet("""
-            QWidget {
-                font-size: 14px;
-            }
-            QPushButton {
-                padding: 8px 16px;
-                background-color: #0078d7;
-                color: white;
-                border-radius: 5px;
-            }
-            QPushButton:hover {
-                background-color: #005a9e;
-            }
-            QLabel {
-                margin-top: 10px;
-                margin-bottom: 5px;
-                font-weight: bold;
-            }
-            QComboBox {
-                padding: 5px;
-            }
-            QCheckBox {
-                margin-top: 5px;
-            }
-        """)
+        self.setStyleSheet(STYLES)
 
     def create_status_bar(self):
         self.status_bar = QStatusBar()
@@ -165,7 +141,7 @@ class MainWindow(QMainWindow):
         self.main_layout.addWidget(self.right_frame, 2)
 
         self.frameview = QWebEngineView()
-        start = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'assets', 'start.html'))
+        start = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'assets', 'screens', 'start.html'))
         start_url = QUrl.fromLocalFile(start)
         self.frameview.load(start_url)
         self.frameview.setZoomFactor(0.5)
