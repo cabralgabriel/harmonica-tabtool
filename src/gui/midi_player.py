@@ -20,7 +20,8 @@ class MidiPlayer:
         self.current_note_index = 0
 
         self.synth = tinysoundfont.Synth()
-        self.sfid = self.synth.sfload("./assets/soundfont/florestan-piano.sf2")
+        soundfont_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'assets', 'soundfont', 'florestan-piano.sf2'))
+        self.sfid = self.synth.sfload(soundfont_path)
         self.synth.program_select(0, self.sfid, 0, 0)
         self.synth.start()
 

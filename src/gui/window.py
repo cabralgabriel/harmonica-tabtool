@@ -1,7 +1,7 @@
 import os
 import shutil
 import tempfile
-from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QComboBox, QFileDialog, QCheckBox, QStackedLayout, QFormLayout, QMessageBox, QStatusBar
+from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QComboBox, QFileDialog, QCheckBox, QFormLayout, QStatusBar
 from PySide6.QtGui import QAction, QIcon, QPageSize, QPageLayout, QGuiApplication
 from PySide6.QtCore import Qt, QUrl, QByteArray, QMarginsF
 from PySide6.QtWebEngineWidgets import QWebEngineView
@@ -46,12 +46,12 @@ class MainWindow(QMainWindow):
     def create_left_frame(self):
         self.left_frame = QWidget(self.central_widget)
         self.left_layout = QVBoxLayout(self.left_frame)
-        self.left_layout.setContentsMargins(10, 10, 10, 10)
+        self.left_layout.setContentsMargins(0, 0, 0, 0)
         self.left_layout.setSpacing(10)
         self.left_frame.setLayout(self.left_layout)
-        self.main_layout.addWidget(self.left_frame, 0.5)
 
-        self.harmonica_type_layout = QFormLayout(self.left_frame)
+        harmonica_type_widget = QWidget()
+        self.harmonica_type_layout = QFormLayout(harmonica_type_widget)
         self.harmonica_type_label = QLabel("Type:")
         self.harmonica_type_layout.addRow(self.harmonica_type_label)
         self.harmonica_type_options = ["Diatonic", "Chromatic"]
@@ -60,8 +60,10 @@ class MainWindow(QMainWindow):
         self.harmonica_type.setEnabled(False)
         self.harmonica_type_layout.addRow(self.harmonica_type)
         self.harmonica_type.currentIndexChanged.connect(self.on_type_change)
+        self.left_layout.addWidget(harmonica_type_widget)
 
-        self.harmonica_tuning_layout = QFormLayout()
+        harmonica_tuning_widget = QWidget()
+        self.harmonica_tuning_layout = QFormLayout(harmonica_tuning_widget)
         self.harmonica_tuning_label = QLabel("Tuning:")
         self.harmonica_tuning_layout.addRow(self.harmonica_tuning_label)
         self.harmonica_tuning_options = ["Standard Richter", "Paddy Richter", "Melody Maker", "Country", "Natural Minor", "Wilde Rock"]
@@ -70,8 +72,10 @@ class MainWindow(QMainWindow):
         self.harmonica_tuning.setEnabled(False)
         self.harmonica_tuning_layout.addRow(self.harmonica_tuning)
         self.harmonica_tuning.currentIndexChanged.connect(self.on_tuning_change)
+        self.left_layout.addWidget(harmonica_tuning_widget)
 
-        self.harmonica_key_layout = QFormLayout()
+        harmonica_key_widget = QWidget()
+        self.harmonica_key_layout = QFormLayout(harmonica_key_widget)
         self.harmonica_key_label = QLabel("Key:")
         self.harmonica_key_layout.addRow(self.harmonica_key_label)
         self.harmonica_key_options = [
@@ -91,8 +95,10 @@ class MainWindow(QMainWindow):
         self.harmonica_key.currentIndexChanged.connect(self.on_key_change)
         self.harmonica_key_index = self.harmonica_key.currentIndex()
         self.harmonica_key_options_copy = self.harmonica_key_options.copy()
+        self.left_layout.addWidget(harmonica_key_widget)
 
-        self.choose_part_layout = QFormLayout()
+        choose_part_widget = QWidget()
+        self.choose_part_layout = QFormLayout(choose_part_widget)
         self.choose_part_label = QLabel("Choose Part:")
         self.choose_part_layout.addRow(self.choose_part_label)
         self.choose_part_options = ["1°"]
@@ -101,8 +107,10 @@ class MainWindow(QMainWindow):
         self.choose_part.setEnabled(False)
         self.choose_part_layout.addRow(self.choose_part)
         self.choose_part.currentIndexChanged.connect(self.on_part_change)
+        self.left_layout.addWidget(choose_part_widget)
 
-        self.reduce_chords_layout = QFormLayout()
+        reduce_chords_widget = QWidget()
+        self.reduce_chords_layout = QFormLayout(reduce_chords_widget)
         self.reduce_chords_label = QLabel("Reduce Chords:")
         self.reduce_chords_layout.addRow(self.reduce_chords_label)
         self.reduce_chords = QCheckBox("On/Off")
@@ -110,27 +118,27 @@ class MainWindow(QMainWindow):
         self.reduce_chords.setEnabled(False)
         self.reduce_chords.stateChanged.connect(self.on_chord_change)
         self.reduce_chords_layout.addRow(self.reduce_chords)
+        self.left_layout.addWidget(reduce_chords_widget)
 
-        self.midi_player_layout = QVBoxLayout()
+        midi_player_widget = QWidget()
+        self.midi_player_layout = QVBoxLayout(midi_player_widget)
         self.midi_player_label = QLabel("Preview Midi:")
         self.midi_player_layout.addWidget(self.midi_player_label)
         self.midi_buttons_layout = QHBoxLayout()
         self.midi_button_play = QPushButton("Play")
+        self.midi_button_play.setObjectName("playButton")
         self.midi_button_play.setEnabled(False)
         self.midi_button_play.clicked.connect(self.on_play_midi)
         self.midi_buttons_layout.addWidget(self.midi_button_play)
         self.midi_button_stop = QPushButton("Stop")
+        self.midi_button_stop.setObjectName("stopButton")
         self.midi_button_stop.setEnabled(False)
         self.midi_button_stop.clicked.connect(self.on_stop_midi)
         self.midi_buttons_layout.addWidget(self.midi_button_stop)
         self.midi_player_layout.addLayout(self.midi_buttons_layout)
+        self.left_layout.addWidget(midi_player_widget)
 
-        self.left_layout.addLayout(self.harmonica_type_layout)
-        self.left_layout.addLayout(self.harmonica_tuning_layout)
-        self.left_layout.addLayout(self.harmonica_key_layout)
-        self.left_layout.addLayout(self.choose_part_layout)
-        self.left_layout.addLayout(self.reduce_chords_layout)
-        self.left_layout.addLayout(self.midi_player_layout)
+        self.main_layout.addWidget(self.left_frame)
 
     def create_right_frame(self):
         self.right_frame = QWidget()
