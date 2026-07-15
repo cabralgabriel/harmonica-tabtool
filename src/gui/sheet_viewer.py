@@ -14,6 +14,8 @@ class SheetViewer:
         self.file_path = main_window.file_path
         self.file_name = main_window.file_name
 
+        self.svgs_pages = []
+
         self.harmonica_type = main_window.harmonica_type
         self.harmonica_tuning = main_window.harmonica_tuning
         self.harmonica_key_options = main_window.harmonica_key_options
@@ -142,8 +144,8 @@ class SheetViewer:
             reduce_chords
         )
 
-        self.svgs_pages_path, self.mei_data = self.file_handler.musicxml_to_svg(self.piece)
-        self.svg_sheets = self.svg_handler.svg_stacker(self.svgs_pages_path)
+        self.svgs_pages, self.mei_data = self.file_handler.musicxml_to_svg(self.piece)
+        self.svg_sheets = self.svg_handler.svg_stacker(self.svgs_pages)
 
         self.display_sheets_file()
         
@@ -166,4 +168,4 @@ class SheetViewer:
             self.frameview.load(svgs_url)
 
     def create_sheets_to_pdf(self):
-        return self.svg_handler.svg_stacker_to_pdfprint(self.svgs_pages_path)
+        return self.svg_handler.svg_stacker_to_pdfprint(self.svgs_pages)
