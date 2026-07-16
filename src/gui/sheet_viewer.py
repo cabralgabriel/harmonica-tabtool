@@ -6,7 +6,6 @@ from handlers.score import ScoreEditor
 from handlers.svg import SVGHandler
 
 class SheetViewer:
-
     def __init__(self, main_window):
         self.main_window = main_window
         self.frameview = main_window.frameview
@@ -14,15 +13,13 @@ class SheetViewer:
         self.file_path = main_window.file_path
         self.file_name = main_window.file_name
 
-        self.svgs_pages = []
-
         self.harmonica_type = main_window.harmonica_type
         self.harmonica_tuning = main_window.harmonica_tuning
         self.harmonica_key_options = main_window.harmonica_key_options
 
-        self.file_handler = FileHandler(self)
-        self.score_editor = ScoreEditor(self)
-        self.svg_handler = SVGHandler(self)
+        self.file_handler = FileHandler(self.file_path, self.file_name, self.temp_dir)
+        self.score_editor = ScoreEditor()
+        self.svg_handler = SVGHandler(self.file_path, self.file_name, self.temp_dir)
 
     def get_score(self, first_use, choose_part):
         """

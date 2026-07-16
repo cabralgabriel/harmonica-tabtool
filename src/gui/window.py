@@ -9,20 +9,22 @@ from PySide6.QtWebEngineWidgets import QWebEngineView
 from constants.styles import STYLES
 from gui.sheet_viewer import SheetViewer
 from gui.midi_player import MidiPlayer
-from handlers.converters import FileHandler
-from handlers.score import ScoreEditor
-from handlers.svg import SVGHandler
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+
+        self.file_path = None
+        self.file_name = None
+        self.sheet_viewer = None
+        self.midi_player = None
+        self.temp_dir = self.make_temp_directory()
 
         self.init_ui()
         self.create_status_bar()
         self.create_left_frame()
         self.create_right_frame()
         self.create_menu()
-        self.make_temp_directory()
 
     def init_ui(self):
         self.setWindowTitle("Harmonica TabTool")
@@ -250,17 +252,6 @@ class MainWindow(QMainWindow):
                 self.print_pdf.setText(f"Export {self.file_name} as .pdf")
                 self.setWindowTitle(f"Harmonica TabTool - {self.file_path}")
     
-    def close_instances(self):
-        if hasattr(self, 'sheet_viewer') and isinstance(self.sheet_viewer, SheetViewer):
-            if hasattr(self.sheet_viewer, 'file_handler') and isinstance(self.sheet_viewer.file_handler, FileHandler):
-                del self.sheet_viewer.file_handler
-            if hasattr(self.sheet_viewer, 'score_editor') and isinstance(self.sheet_viewer.score_editor, ScoreEditor):
-                del self.sheet_viewer.score_editor
-            if hasattr(self.sheet_viewer, 'svg_handler') and isinstance(self.sheet_viewer.svg_handler, SVGHandler):
-                del self.sheet_viewer.svg_handler
-            del self.sheet_viewer
-        if hasattr(self, 'midi_player') and isinstance(self.midi_player, MidiPlayer):
-            del self.midi_player
 
     def open_file(self):
         file_dialog = QFileDialog(self)
@@ -269,7 +260,7 @@ class MainWindow(QMainWindow):
             try:
                 self.update_file_name()
                 self.toggle_menus(True)
-                self.close_instances()
+
                 self.sheet_viewer = SheetViewer(self)
                 self.start_sheets(True)
                 self.update_part_change()
@@ -278,9 +269,9 @@ class MainWindow(QMainWindow):
                 print(f'Failed to load file. Reason: {e}')
 
     def make_temp_directory(self):
-        self.temp_dir = os.path.join(tempfile.gettempdir(), "harmonica_tabtool")
-        if not os.path.exists(self.temp_dir):
-            os.makedirs(self.temp_dir)
+        temp_dir = os.path.join(tempfile.gettempdir(), "harmonica_tabtool")
+        os.makedirs(temp_dir, exist_ok=True)
+        return temp_dir
 
     def start_sheets(self, first_use):
         self.harmonica_key_index = self.harmonica_key.currentIndex()

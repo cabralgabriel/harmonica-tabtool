@@ -1,10 +1,10 @@
 import os
 
 class SVGHandler:
-    def __init__(self, source):
-        self.file_path = source.file_path
-        self.file_name = source.file_name
-        self.temp_dir = source.temp_dir
+    def __init__(self, file_path, file_name, temp_dir):
+        self.file_path = file_path
+        self.file_name = file_name
+        self.temp_dir = temp_dir
 
     def svg_stacker(self, svg_pages):
 

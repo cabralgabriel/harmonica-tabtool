@@ -3,8 +3,7 @@ from music21 import note, chord, metadata, pitch
 from constants.tunings import HARMONICA_TUNINGS
 
 class ScoreEditor:
-    def __init__(self, source):
-        self.source = source
+    def __init__(self):
         self.harmonica_tunings = HARMONICA_TUNINGS
 
     def edit_metadata(self, score, title, key):
