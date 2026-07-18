@@ -2,8 +2,8 @@ import os
 import shutil
 import tempfile
 from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QComboBox, QFileDialog, QCheckBox, QFormLayout, QStatusBar
-from PySide6.QtGui import QAction, QIcon, QPageSize, QPageLayout, QGuiApplication
-from PySide6.QtCore import Qt, QUrl, QByteArray, QMarginsF
+from PySide6.QtGui import QAction, QIcon, QGuiApplication
+from PySide6.QtCore import Qt, QUrl, QByteArray
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
 from constants.styles import STYLES
@@ -353,9 +353,9 @@ class MainWindow(QMainWindow):
             self.midi_button_play.setEnabled(False)
 
     def on_play_midi(self):
-        if hasattr(self, 'midi_player') and isinstance(self.midi_player, MidiPlayer):
-            self.midi_player.stop_midi()
-            del self.midi_player
+        if hasattr(self, 'midi_player') and self.midi_player:
+            if self.midi_player.synth:
+                self.midi_player.synth.stop()
 
         self.midi_player = MidiPlayer(self)
         self.midi_player.play_midi()

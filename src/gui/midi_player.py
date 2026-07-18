@@ -2,7 +2,7 @@ import os
 import mido
 import tinysoundfont
 from lxml import etree
-from PySide6.QtCore import QUrl, QTimer
+from PySide6.QtCore import QTimer
 from handlers.converters import FileHandler
 
 class MidiPlayer:
@@ -25,21 +25,21 @@ class MidiPlayer:
         self.synth.program_select(0, self.sfid, 0, 0)
         self.synth.start()
 
-        self.file_handler = FileHandler(self)
+        self.file_handler = FileHandler(self.file_path, self.file_name, self.temp_dir)
 
     def play_midi(self):
         """
-        Start playing the MIDI file and highlight notes in the SVG sheet music.
+        Start playing the MIDI file and highlight notes in the HTML sheet music.
 
         This method generates a MIDI file from MEI data, extracts note information,
-        loads the SVG sheet music, and starts a timer to highlight notes in sync with the music.
+        loads the HTML sheet music, and starts a timer to highlight notes in sync with the music.
         """
-        self.svg_sheets = os.path.join(self.temp_dir, f"{self.file_name}.svg")
+        self.svg_sheets = os.path.join(self.temp_dir, f"{self.file_name}_preview.html")
         self.midi_path = self.file_handler.mei_to_midi(self.mei_data)
 
         if self.midi_path:
             self.note_numbers, self.note_times = self.extract_notes(self.midi_path)
-            self.load_svg()
+            self.load_html_sheet()
 
             self.timer = QTimer()
             self.timer.timeout.connect(self.highlight_next_note)
@@ -47,17 +47,16 @@ class MidiPlayer:
 
     def stop_midi(self):
         """
-        Stop the MIDI playback and reset the SVG highlighting.
+        Stop the MIDI playback and reset the HTML highlighting.
 
         This method stops the MIDI playback, resets the note highlighting,
-        and updates the SVG sheet music.
+        and updates the HTML sheet music.
         """
         self.main_window.toggle_menus(True)
         self.main_window.midi_button_stop.setEnabled(False)
 
         if self.synth:
             self.synth.stop()
-            self.synth.start()
 
         #if self.timer:
         #    self.timer.stop()
@@ -74,20 +73,19 @@ class MidiPlayer:
             except Exception as e:
                 pass
 
-        self.update_svg()
+        self.frameview.page().runJavaScript("document.querySelectorAll('g.note').forEach(n => n.setAttribute('style', ''));")
 
     def play_notes(self, note, volume=100):
         self.synth.noteon(0, note, volume)
         self.synth.noteoff(0, note)
 
-    def load_svg(self):
-        with open(self.svg_sheets, 'r') as file:
-            svg_string = file.read()
-
-        namespaces = {'svg': 'http://www.w3.org/2000/svg'}
-        self.root = etree.fromstring(svg_string)
-        self.note_elements = self.root.findall(".//svg:g[@class='note']", namespaces)
-        self.current_note_index = 0
+    def load_html_sheet(self):
+        with open(self.svg_sheets, 'r', encoding='utf-8') as file:
+            html_string = file.read()
+            
+        parser = etree.HTMLParser()
+        self.root = etree.fromstring(html_string.encode('utf-8'), parser)
+        self.note_elements = self.root.findall(".//g[@class='note']")
 
     def extract_notes(self, midi_file_path):
         mid = mido.MidiFile(midi_file_path)
@@ -106,18 +104,23 @@ class MidiPlayer:
     def highlight_next_note(self):
         if self.current_note_index > 0:
             previous_note = self.note_elements[self.current_note_index - 1]
-            previous_note.set('style', self.remove_fill_style(previous_note.get('style', '')))
+            previous_style = self.remove_fill_style(previous_note.get('style', ''))
+            previous_note.set('style', previous_style)
+
+            self.frameview.page().runJavaScript(f"document.querySelectorAll('g.note')[{self.current_note_index - 1}].setAttribute('style', '{previous_style}');")
 
         if self.current_note_index < len(self.note_elements):
             current_note = self.note_elements[self.current_note_index]
-            current_note.set('style', self.add_fill_style(current_note.get('style', ''), (255, 0, 0)))
+            current_style = self.add_fill_style(current_note.get('style', ''), (255, 0, 0))
+            current_note.set('style', current_style)
 
-            self.update_svg()
+            self.frameview.page().runJavaScript(f"document.querySelectorAll('g.note')[{self.current_note_index}].setAttribute('style', '{current_style}');")
+
             if self.current_note_index < len(self.note_numbers):
                 self.play_notes(self.note_numbers[self.current_note_index])
             else:
                 self.stop_midi()
-
+                
             # Calculate the delay for the next note based on timing
             if self.current_note_index < len(self.note_times) - 1:
                 current_time = self.note_times[self.current_note_index][1]
@@ -130,12 +133,12 @@ class MidiPlayer:
 
     def add_fill_style(self, style, color):
         """
-        Add a fill style to an SVG element's existing style.
+        Add a fill style to an HTML element's existing style.
 
         Parameters
         ----------
         style : str
-            The current style string of the SVG element.
+            The current style string of the HTML element.
         color : tuple of int
             The RGB color values to add to the style (e.g., (255, 0, 0) for red).
 
@@ -167,12 +170,12 @@ class MidiPlayer:
 
     def remove_fill_style(self, style):
         """
-        Remove the fill style from an SVG element's style.
+        Remove the fill style from an HTML element's style.
 
         Parameters
         ----------
         style : str
-            The current style string of the SVG element.
+            The current style string of the HTML element.
 
         Returns
         -------
@@ -193,9 +196,3 @@ class MidiPlayer:
 
         return new_style
 
-    def update_svg(self):
-        svg_string = etree.tostring(self.root, encoding='unicode', xml_declaration=False)
-        with open(self.svg_sheets, 'w', encoding='utf-8') as file:
-            file.write(svg_string)
-        url = QUrl.fromLocalFile(self.svg_sheets)
-        self.frameview.load(url)
