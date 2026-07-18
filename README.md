@@ -44,19 +44,23 @@ From your command line:
 
 ```bash
 # Clone the repository
-$ git clone https://github.com/cabralgabriel/harmonica-tabtool
+git clone https://github.com/cabralgabriel/harmonica-tabtool
 
 # Navigate to the repository
-$ cd harmonica-tabtool
+cd harmonica-tabtool
 
 # Create and activate a virtual environment
-$ python -m venv env
-$ source env/bin/activate  # macOS/Linux
-$ .\env\Scripts\activate  # Windows
+python -m venv env
+source env/bin/activate  # macOS/Linux
+.\env\Scripts\activate  # Windows
+
+# Install portaudio to compile tinysoundfont (Important for Linux)
+dnf install portaudio-devel # Fedora
+pacman -S portaudio # Arch
 
 # Install dependencies
-$ pip install -r requirements.txt
+pip install -r requirements.txt
 
 # Navigate to the src directory and run the app
-$ cd src
-$ python main.py
+cd src
+python main.py
