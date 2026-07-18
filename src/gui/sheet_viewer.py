@@ -144,7 +144,7 @@ class SheetViewer:
         self.svgs_pages, self.mei_data = self.file_handler.musicxml_to_svg(self.piece)
 
         # Convert to a full long page
-        self.svg_sheets = self.svg_html_stacker(self.svgs_pages)
+        self.html_sheet_path = self.svg_html_stacker(self.svgs_pages)
 
         # Load .html sheets
         self.display_sheets_file()
@@ -168,10 +168,10 @@ class SheetViewer:
         # Read template (needs to add a option to select sheet layout)
         sheets_template_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'assets', 'sheets_layout', 'template.html'))
         with open(sheets_template_path, 'r', encoding='utf-8') as f:
-            sheets_template_path = f.read()
+            template_html = f.read()
 
         # Stack all svg
-        self.sheets_string = sheets_template_path.replace('{{sheets}}', full_sheet)
+        self.sheets_string = template_html.replace('{{sheets}}', full_sheet)
         
         # Write temp file because is more faster load a .html
         self.sheets_path = os.path.join(self.temp_dir, f"{self.file_name}_preview.html")
@@ -182,8 +182,8 @@ class SheetViewer:
     
     # This is more faster than using setHtml() or setContent()
     def display_sheets_file(self):
-        if self.svg_sheets:
-            svgs_url = QUrl.fromLocalFile(self.svg_sheets)
+        if self.html_sheet_path:
+            svgs_url = QUrl.fromLocalFile(self.html_sheet_path)
             self.frameview.load(svgs_url)
 
     def load_default_scene(self):
