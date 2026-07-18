@@ -36,6 +36,7 @@ class SheetViewer:
             Updates `self.piece` and `self.parts_num`.
         """
         selected_part = 1 if first_use else int(choose_part.currentText().rstrip("°"))
+        
         self.piece, self.parts_num = self.file_handler.midi_to_musicxml(selected_part)
 
     def update_key_options(self, tabs_with_bend, tabs_with_overblow, tabs_with_missing_notes, harmonica_key, key_index, key_options_copy):

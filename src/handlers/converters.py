@@ -1,6 +1,7 @@
 import os
 import verovio
 from music21 import converter
+from music21.musicxml import m21ToXml
 
 class FileHandler:
     def __init__(self, file_path, file_name, temp_dir): 
@@ -22,13 +23,18 @@ class FileHandler:
 
         return piece, part_num
 
-    def musicxml_to_mei(self, musicxml_path):
-        self.toolkit.loadFile(musicxml_path)
+    def musicxml_to_mei(self, piece):
+
+        exporter = m21ToXml.GeneralObjectExporter()
+        xml_bytes = exporter.parse(piece)
+        xml_string = xml_bytes.decode('utf-8')
+
+        self.toolkit.loadData(xml_string)
         mei_data = self.toolkit.getMEI()
 
         return mei_data
 
-    #def mei_to_svg(self, mei_data):
+    #def mei_to_svg_files(self, mei_data):
     #    self.toolkit.loadData(mei_data)
     #    page_num = self.toolkit.getPageCount()
     #    svg_files = []
@@ -50,10 +56,8 @@ class FileHandler:
 
     # Get data instead of write svg files
     def musicxml_to_svg(self, piece):
-        musicxml_path = os.path.join(self.temp_dir, f"{self.file_name}.musicxml")
-        piece.write("musicxml", fp=musicxml_path)
-
-        mei_data = self.musicxml_to_mei(musicxml_path)
+        
+        mei_data = self.musicxml_to_mei(piece)
         
         self.toolkit.loadData(mei_data)
         page_num = self.toolkit.getPageCount()
