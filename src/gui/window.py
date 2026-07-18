@@ -377,23 +377,18 @@ class MainWindow(QMainWindow):
         self.start_sheets(False)
     
     def save_file_as_musicxml(self):
-        self.musicxml_path = os.path.join(self.temp_dir, f"{self.file_name}.musicxml")
-        if self.musicxml_path: 
-            file_dialog = QFileDialog()
-            file_dialog.setAcceptMode(QFileDialog.AcceptSave)
-            file_dialog.selectFile(self.file_name)
-            file_dialog.setNameFilters(["MusicXML files (*.musicxml)"])
-            file_dialog.setDefaultSuffix('musicxml')
-            if file_dialog.exec():
-                choosed_path = file_dialog.selectedFiles()[0]
+        file_dialog = QFileDialog()
+        file_dialog.setAcceptMode(QFileDialog.AcceptSave)
+        file_dialog.selectFile(self.file_name)
+        file_dialog.setNameFilters(["MusicXML files (*.musicxml)"])
+        file_dialog.setDefaultSuffix('musicxml')
 
-                if choosed_path:
-                    with open(self.musicxml_path, 'r') as musicxml_file:
-                        musicxml_content = musicxml_file.read()
+        if file_dialog.exec():
+            choosed_path = file_dialog.selectedFiles()[0]
+
+            if choosed_path:
+                self.sheet_viewer.piece.write("musicxml", fp=choosed_path)
                     
-                    musicxml_byte_array = QByteArray(musicxml_content.encode('utf-8'))
-                    with open(choosed_path, 'wb') as file:
-                        file.write(musicxml_byte_array)
 
     def save_file_as_pdf(self):
         file_dialog = QFileDialog()
