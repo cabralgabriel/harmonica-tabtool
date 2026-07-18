@@ -403,15 +403,8 @@ class MainWindow(QMainWindow):
         file_dialog.setDefaultSuffix("pdf")
 
         if file_dialog.exec():
-            self.printer = QWebEngineView()
-            svg_file_path = self.sheet_viewer.create_sheets_to_pdf()
-            url = QUrl.fromLocalFile(svg_file_path)
-            self.printer.load(url)
-
             choosed_path = file_dialog.selectedFiles()[0]
-            page_layout = QPageLayout(QPageSize(QPageSize.A2), QPageLayout.Portrait, QMarginsF())
-            self.printer.page().printToPdf(choosed_path, page_layout)
-
+            self.frameview.page().printToPdf(choosed_path)
             self.status_bar.showMessage(f"Tablature of {self.file_name} was saved successfully.", 8000)
 
     def copy_to_clipboard(self):

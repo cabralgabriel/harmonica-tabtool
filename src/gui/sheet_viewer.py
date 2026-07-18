@@ -3,7 +3,6 @@ from PySide6.QtCore import QUrl
 
 from handlers.converters import FileHandler
 from handlers.score import ScoreEditor
-from handlers.svg import SVGHandler
 
 class SheetViewer:
     def __init__(self, main_window):
@@ -19,7 +18,6 @@ class SheetViewer:
 
         self.file_handler = FileHandler(self.file_path, self.file_name, self.temp_dir)
         self.score_editor = ScoreEditor()
-        self.svg_handler = SVGHandler(self.file_path, self.file_name, self.temp_dir)
 
     def get_score(self, first_use, choose_part):
         """
@@ -141,9 +139,13 @@ class SheetViewer:
             reduce_chords
         )
 
+        # Load all sheets page
         self.svgs_pages, self.mei_data = self.file_handler.musicxml_to_svg(self.piece)
-        self.svg_sheets = self.svg_handler.svg_stacker(self.svgs_pages)
 
+        # Convert to a full long page
+        self.svg_sheets = self.svg_html_stacker(self.svgs_pages)
+
+        # Load .html sheets
         self.display_sheets_file()
         
         return {
@@ -153,16 +155,38 @@ class SheetViewer:
             'removed_notes': self.removed_notes,
             'mei_data': self.mei_data
         }
+    
+
+    def svg_html_stacker(self, svg_pages):
+
+        sheets_pages = []
+        for svg in svg_pages:
+            sheets_pages.append(f'<div class="page">{svg}</div>')
+        full_sheet = '\n'.join(sheets_pages)
+
+        # Read template (needs to add a option to select sheet layout)
+        sheets_template_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'assets', 'sheets_layout', 'template.html'))
+        with open(sheets_template_path, 'r', encoding='utf-8') as f:
+            sheets_template_path = f.read()
+
+        # Stack all svg
+        self.sheets_string = sheets_template_path.replace('{{sheets}}', full_sheet)
+        
+        # Write temp file because is more faster load a .html
+        self.sheets_path = os.path.join(self.temp_dir, f"{self.file_name}_preview.html")
+        with open(self.sheets_path, 'w', encoding='utf-8') as f:
+            f.write(self.sheets_string)
+
+        return self.sheets_path
+    
+    # This is more faster than using setHtml() or setContent()
+    def display_sheets_file(self):
+        if self.svg_sheets:
+            svgs_url = QUrl.fromLocalFile(self.svg_sheets)
+            self.frameview.load(svgs_url)
 
     def load_default_scene(self):
         nokeys = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'assets', 'screens', 'nokeys.html'))
         nokeys_url = QUrl.fromLocalFile(nokeys)
         self.frameview.load(nokeys_url)
 
-    def display_sheets_file(self):
-        if self.svg_sheets:
-            svgs_url = QUrl.fromLocalFile(self.svg_sheets)
-            self.frameview.load(svgs_url)
-
-    def create_sheets_to_pdf(self):
-        return self.svg_handler.svg_stacker_to_pdfprint(self.svgs_pages)
